@@ -1,0 +1,20 @@
+{
+    "save_dir": "<default directory for reconstructions to save>",
+    "max_num_base_added": 1000,
+    "cell_structures": [
+        "unknown",
+        "axon",
+        "basal dendrite",
+        "apical dendrite",
+        "dendrite",
+        "multiple"
+    ],
+    "annotation_points": [
+        "exit volume",
+        "natural end",
+        "uncertain",
+        "pre-synaptic",
+        "post-synaptic"
+    ],
+    "db_path": "<path to agglomeration database file>/Mariela_bigquery_exports_agglo_v230111c_16_crest_proofreading_database.db"
+}
