@@ -59,21 +59,23 @@ Several external tools were used in the data collection and processing pipeline.
 
 ### eCREST (Connectome Reconstruction and Exploration Simple Tool)
 
-eCREST is a CLI-based Python interface built on top of [CREST](https://github.com/ashapsoncoe/CREST) (by Alex Shapson-Coe). It enables users to (1) proofread biological objects and (2) identify individual network pathways, connections, and cell types in the [Neuroglancer](https://github.com/google/neuroglancer) interface.
+eCREST is a CLI-based Python interface built on top of [CREST](https://github.com/ashapsoncoe/CREST) (Connectome Reconstruction and Exploration Simple Tool; by Alex Shapson-Coe, @ashaponscoe). It enables users to (1) proofread biological objects and (2) identify individual network pathways, connections, and cell types in the [Neuroglancer](https://github.com/google/neuroglancer) interface.
 
-In this project, eCREST was used throughout the reconstruction phase to annotate synapses and cell types for all reconstructed neurons. The `eCREST_cli.py` module in this repository contains the `ecrest` class used during that process. The `eCREST_notebook.ipynb` documents the reconstruction workflow.
+eCREST was forked from CREST and modified into a CLI-based interface for utilizing CREST methods and makes extensive use of the Neuroglancer Python API.. Additional methods were added to meet the needs of this specific project.
+
+In this project, eCREST was used throughout the reconstruction phase to annotate synapses and soma, subcellular structures (axons, dendrites, etc), and cell types for all reconstructed neurons. The `eCREST_cli.py` module in this repository contains the `ecrest` class used during that process. The `eCREST_notebook.ipynb` documents the reconstruction workflow.
 
 ### VAST / VASTlite
 
 [VASTlite](https://lichtman.rc.fas.harvard.edu/vast/) (Volume Annotation and Segmentation Tool, Harvard Lichtman Lab) is a tool for annotating and editing segments in large EM volumes.
 
-In this project, VAST was used to combine and manually correct automated segment boundaries from the original EM database. `json_to_VASTskel.ipynb` converts eCREST `.json` reconstruction files into VAST-compatible skeleton format, which enabled: (1) segment editing and quality control, (2) generation of vectorized skeletons for morphological analysis (input to `Igneous_pipeline.ipynb`), and (3) generation of Blender-compatible `.obj` mesh files for 3D figure panels.
+In this project, VAST was used to combine and manually correct automated segment boundaries from the original EM database. `json_to_VASTskel.ipynb` converts eCREST `.json` reconstruction files into VAST-compatible skeleton format, which enables segment agglomeration in VAST for editing and quality control, and for mesh/image export. Exports from VAST were used directly in Extended Data Fig. 3C, processed with `Igneous_pipeline.ipynb`, and imported to Blender for 3D rendering used in many Figure panels.
 
 ### CloudVolume
 
 [cloud-volume](https://github.com/seung-lab/cloud-volume) (Seung Lab) is a Python library for reading and writing volumetric datasets stored in [Neuroglancer Precomputed](https://github.com/google/neuroglancer/blob/master/src/datasource/precomputed/README.md) format.
 
-In this project, CloudVolume was used in `SpineCounts.ipynb` to access the segmented EM subvolume and identify which cells occupy a defined bounding box for apical dendrite length measurements.
+In this project, CloudVolume was used in `/morphology_cat_createDF.ipynb` and `SpineCounts.ipynb` to access the skeletons of the dataset segmentation in precomputed format.
 
 > **Important:** CloudVolume does not support Windows. It must be run on Mac or Linux.
 
@@ -81,13 +83,11 @@ In this project, CloudVolume was used in `SpineCounts.ipynb` to access the segme
 
 [Igneous](https://github.com/seung-lab/igneous) (Seung Lab) is a Python-based pipeline for processing large volumetric segmentations, including meshing, skeletonization, and downsampling.
 
-In this project, Igneous was used in `Igneous_pipeline.ipynb` to mesh and skeletonize select segments (with preprocessing in json_to_VASTskel) from the EM subvolume and serve them locally (via `igneous view`) so that CloudVolume could query it. Used for apical dendrite length analysis (Figure 2A).
+In this project, Igneous was used from the Terminal/bash command line and in `Igneous_pipeline.ipynb` to mesh and skeletonize select segments from the EM volume and serve them locally (via `igneous view`) so that CloudVolume could query it. Used primarily for apical dendrite length analysis (Extended Data Fig. 3A,B).
 
 ### Blender
 
-[Blender](https://www.blender.org/) is open-source 3D creation software. `Blender_make_mesh.ipynb` uses the Blender Python API (`bpy`) to generate 3D mesh renderings of reconstructed neurons for figure panels (Figure 1D–H).
-
-> **Note:** `Blender_make_mesh.ipynb` must be run from within Blender's built-in Python scripting environment, not from the standard `efish_em` conda environment.
+[Blender](https://www.blender.org/) is open-source 3D creation software. `Blender_make_mesh.ipynb` uses [trimesh](https://trimesh.org/) to generate and downsample 3D mesh renderings (as .obj files) of reconstructed neurons for figure panels and supplemental videos. 
 
 ---
 
@@ -153,15 +153,15 @@ The table below maps each notebook to its purpose, the files it produces, and th
 
 | Notebook | Purpose | Output | Paper Figure(s) |
 |---|---|---|---|
-| `Analyses_published.ipynb` | Main analysis and figure generation — runs top-to-bottom to reproduce all published connectome results/figures and modelling figures (refer to modeling code for reproducing modeling results) | Figures | Figs 2C/D, 3, 4, 5, 6, 7; Extended Data S3–S7 |
-| `SpineCounts.ipynb` | Spine count and apical dendrite length from EM subvolume *(requires CloudVolume/Igneous; Mac/Linux only)* | `data_processed_published/df_spine_counts.csv` | Fig 2A, 2B |
+| `Analyses_published.ipynb` | Main analysis and figure generation — runs top-to-bottom to reproduce all published connectome results/figures and modelling figures (refer to modeling code for reproducing modeling results) | Figures | Figs 2, 3, 4, 5, 6; Extended Data S3–S8 |
+| `SpineCounts.ipynb` | Spine count and apical dendrite length from EM subvolume *(requires CloudVolume/Igneous; Mac/Linux only)* | `data_processed_published/df_spine_counts.csv` | Extended Data S3 |
 | `Network-Build.ipynb` | Build synapse edge lists from eCREST reconstruction files | `data_processed_published/df_postsyn.csv`, `df_presyn.csv` | Input to `Analyses_published` |
 | `CellTyping.ipynb` | Morphological classification of cell types (MG1/MG2, SG1/SG2); soma location analysis | `data_processed_published/df_type_auto_typed.csv` | Input to `Analyses_published` |
 | `morphology_cat_createDF.ipynb` | Extract morphological node statistics from eCREST files | `data_processed_published/morphology_cat/*.csv` | Input to `CellTyping` |
-| `Igneous_pipeline.ipynb` | Process EM subvolume segments to assign cell type labels; requires running local Igneous server *(Mac/Linux only)* | `data_VAST/volume_subsample_sg-mg-out_ratio/df_segments_assigned.csv` | Fig 2A |
+| `Igneous_pipeline.ipynb` | Process EM subvolume segments to assign cell type labels; requires running local Igneous server *(Mac/Linux only)* | `data_VAST/volume_subsample_sg-mg-out_ratio/df_segments_assigned.csv` | Extended Data S3 |
 | `json_to_VASTskel.ipynb` | Convert eCREST `.json` files to VAST skeleton format; also produces Blender `.obj` files | VAST skeleton files; Blender `.obj` files | Fig 1D–H; input to `Igneous_pipeline` |
 | `Blender_make_mesh.ipynb` | Generate 3D mesh renderings of reconstructed neurons *(must be run inside Blender's Python environment)* | Rendered 3D figure panels | Fig 1D–H |
-| `VAST_image_manip.ipynb` | Process and annotate EM image exports from VAST | Processed image files | Fig 1D; Extended Data S2 |
+| `VAST_image_manip.ipynb` | Process and annotate EM image exports from VAST | Processed image files | Fig 1D |
 | `eCREST_notebook.ipynb` | Documents the eCREST reconstruction and annotation workflow used to collect the data | — | Methods |
 
 ---
@@ -175,17 +175,19 @@ eCREST reconstruction (ecrest class in eCREST_cli.py)
         │
         ├─→ reconstructions_published/*.json
         │
-        ├─→ json_to_VASTskel.ipynb ──→ VAST skeleton files
-        │         │                          │
-        │         │                    Igneous_pipeline.ipynb
-        │         │                          │
-        │         │                    df_segments_assigned.csv
-        │         │                          │
-        │         └──→ Blender .obj files    └──→ SpineCounts.ipynb
-        │                    │                          │
-        │             Blender_make_mesh.ipynb    df_spine_counts.csv
-        │                    │                          │
-        │             3D figure panels                  │
+        ├─→ json_to_VASTskel.ipynb ──→ VAST segment agglomeration to .raw export
+        |                                    |
+        |                              Igneous command line interface
+        │                                    │
+        │                             Igneous_pipeline.ipynb
+        │                                    │
+        │                             df_segments_assigned.csv
+        │                                    │
+        │──→ Blender_make_mesh.ipynb         └──→ SpineCounts.ipynb
+        │        │                                      │
+        │    Blender .obj files                 df_spine_counts.csv
+        │         │                                     │
+        │    3D figure panels                           │
         │                                               │
         ├─→ morphology_cat_createDF.ipynb               │
         │         │                                     │
