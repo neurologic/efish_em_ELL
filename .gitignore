@@ -1,0 +1,41 @@
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+.virtual_documents/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+
+# --- Virtual environments ---
+.env
+.venv/
+venv/
+env/
+ENV/
+
+# --- Editor/IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Claude Code / local session state ---
+.claude/
+
+# --- Other local cruft ---
+*.log
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
