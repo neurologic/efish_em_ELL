@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "efish_em_ELL"
+version = "1.0.0"
+description = "Code accompanying Perks, Petkova, Muller et al. (2025), 'Connectome analysis of a recurrent multi-layer network for continual learning in electric fish'."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Krista Perks" },
+    { name = "Marjena Popović Petkova" },
+    { name = "Salomon Z. Muller" },
+    { name = "Nathaniel B. Sawtell" },
+]
+requires-python = ">=3.9"
+keywords = ["connectomics", "electric fish", "ELL", "neuroscience", "cerebellum-like"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+# ------------------------------------------------------------------
+# Base dependencies — cross-platform (Windows / macOS / Linux).
+# Sufficient to run Analyses_published.ipynb and CellTyping.ipynb end-to-end
+# against the EM_data_published archive (which reproduces every published
+# figure).
+# ------------------------------------------------------------------
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "scikit-learn",
+    "networkx",
+    "h5py",
+    "tqdm",
+    "Pillow",
+    "pyarrow",            # required for pandas.read_parquet (base-segs_query_published.parquet)
+    "jupyterlab",
+]
+
+# ------------------------------------------------------------------
+# Optional extras:
+#   [ecrest]       — live eCREST reconstruction workflow + synapse edge-list
+#                    build. Cross-platform.
+#   [cloudvolume]  — access to Neuroglancer Precomputed segmentation volumes,
+#                    meshes, and skeletons (CloudVolume / Igneous / trimesh /
+#                    neuprint). macOS / Linux only (cloud-volume does not
+#                    support Windows). NOTE: install cloud-volume BEFORE the
+#                    base package so its numpy pin is respected (see README
+#                    manual recipe).
+# ------------------------------------------------------------------
+[project.optional-dependencies]
+ecrest = [
+    "neuroglancer",
+    "python-igraph",
+]
+cloudvolume = [
+    "cloud-volume",
+    "trimesh",
+    "neuprint-python",
+    # igneous-pipeline is only needed to re-serve the precomputed directory
+    # locally; it is listed here so `pip install efish_em_ELL[cloudvolume]`
+    # on Mac/Linux sets up the full workflow in one command.
+    "igneous-pipeline",
+]
+# Convenience bundle for Mac/Linux users who want everything in one install.
+all = [
+    "efish_em_ELL[ecrest]",
+    "efish_em_ELL[cloudvolume]",
+]
+
+[project.urls]
+Repository = "https://github.com/neurologic/efish_em_ELL"
+"Manuscript" = "https://doi.org/PLACEHOLDER"   # to be filled in at publication
+
+# ------------------------------------------------------------------
+# Package discovery — the Python package lives in ./efish_em/
+# ------------------------------------------------------------------
+[tool.setuptools]
+packages = ["efish_em"]
