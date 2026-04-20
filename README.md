@@ -4,7 +4,7 @@ Code repository accompanying:
 
 **Perks, Petkova, Muller et al. (2025). "Connectome analysis of a recurrent multi-layer network for continual learning in electric fish."**
 
-This repository contains Jupyter notebooks and Python utilities for processing and analyzing data from the electrosensory lobe (ELL) connectome of *Gnathonemus petersii* (weakly electric fish).
+This repository contains Jupyter notebooks and Python utilities for processing and analyzing data from the electrosensory lobe (ELL) connectome of *Gnathonemus petersii* (African pulse-type electric fish).
 
 **License:** MIT (code). The companion data archive `EM_data_published/` is released under CC-BY-4.0.
 
@@ -156,16 +156,18 @@ The repository is installable via `pyproject.toml`. There are three install tier
 
 ### Install tier 1 — base (Windows / macOS / Linux)
 
-Runs the main analysis notebooks (`Analyses_published.ipynb`, `CellTyping.ipynb`) — sufficient to reproduce every published processed data figure (does not include mesh creation for Blender renderings).
+Runs the main analysis notebooks (`Analyses_published.ipynb`, `CellTyping.ipynb`) — sufficient to reproduce every published quantitative data panel (does not include mesh creation for Blender renderings).
 
 ```bash
-conda create --name efish_em python=3.10
+conda create --name efish_em python=3.11
 conda activate efish_em
 
 git clone https://github.com/neurologic/efish_em_ELL.git
 cd efish_em_ELL
 pip install -e .
 ```
+
+Python 3.9, 3.10, and 3.11 are all supported (see `pyproject.toml`); **3.11 is the version the published figures were generated under.**
 
 ### Install tier 2 — add live eCREST workflow (Windows / macOS / Linux)
 

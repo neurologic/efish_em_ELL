@@ -158,10 +158,10 @@ def check_annot_reconstruction_completeness(df_syn, nodefiles, df_type, syn, sou
                 cell_dict = {
                     'id': cell_data.get('metadata').get('main_seg').get('base'),
                     'cell_type': df_type[df_type['id']==c]['cell_type'].values[0],
-                    'n_syn': np.NaN,
+                    'n_syn': np.nan,
                     'done': n_syn_done, #len(c_df),
-                    'todo': np.NaN, #len(c_df),
-                    'completed': np.NaN
+                    'todo': np.nan, #len(c_df),
+                    'completed': np.nan
                     }
                 
             cell_df = pd.DataFrame([cell_dict]).dropna(how='all')
@@ -200,14 +200,14 @@ def measure_soma(nodefiles):
                 diam = np.mean([np.ptp(xpts), np.ptp(zpts)])
                 soma_diam[x] = diam
             elif len(soma_anno)==3:
-                soma_diam[x] = np.NaN
+                soma_diam[x] = np.nan
             else:
-                soma_diam[x] = np.NaN
-                soma_loc[x] = (np.NaN, np.NaN, np.NaN)
+                soma_diam[x] = np.nan
+                soma_loc[x] = (np.nan, np.nan, np.nan)
             
         else:
-            soma_diam[x] = np.NaN
-            soma_loc[x] = (np.NaN, np.NaN, np.NaN)
+            soma_diam[x] = np.nan
+            soma_loc[x] = (np.nan, np.nan, np.nan)
 
     # Create DataFrame
     df_soma = pd.DataFrame({

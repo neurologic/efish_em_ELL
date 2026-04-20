@@ -35,8 +35,13 @@ classifiers = [
 # figure).
 # ------------------------------------------------------------------
 dependencies = [
-    "numpy",
-    "pandas",
+    # numpy / pandas upper bounds match what the cloud-volume tier-3 install
+    # pulls in transitively, so tier-1 and tier-3 users land on the same
+    # arithmetic / dtype-behavior regime the published figures were generated
+    # under. Raising the caps requires re-testing: numpy 2.x removed np.NaN,
+    # and pandas 2.2+ made fillna dtype-strict (see CellTyping.ipynb cell 46).
+    "numpy>=1.24,<2.0",
+    "pandas>=2.0,<2.2",
     "scipy",
     "matplotlib",
     "seaborn",
