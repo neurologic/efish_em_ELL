@@ -58,7 +58,7 @@ EM_data_published/
 ├── data_gc.mat
 ├── base-segs_query_published.csv          ← base-segment → voxel-location table (BigQuery export)
 ├── base-segs_query_published.parquet      ← same table in Parquet format
-├── published_reconstructions.json         ← reconstruction → meshed-segment lookup for public GS bucket
+├── STATIC_published-reconstructions.json  ← base-segment → reconstructed-cell dictionary used to build the user-friendly static single-segment versions of each reconstruction
 ├── Mariela_bigquery_exports_agglo_v230111c_16_crest_proofreading_database.db
 ├── fig5/
 ├── fig6/
@@ -258,14 +258,14 @@ The table below maps each notebook to its purpose, the install tier it requires,
 | Notebook | Install tier | Purpose | Output | Paper Figure(s) |
 |---|---|---|---|---|
 | `Analyses_published.ipynb` | **tier 1** | Main analysis and figure generation — runs top-to-bottom to reproduce published connectome results/figures (refer to modeling code for reproducing modeling results) | Figures | Figs 1–6; Extended Data Figs 2-8 |
-| `CellTyping.ipynb` | **tier 1** | Morphological classification of cell types (MG1/MG2, SG1/SG2); soma location analysis | `data_processed_published/df_type_auto_typed.csv` | Extended Data Fig. 2; input to `Analyses_published` |
-| `Network-Build.ipynb` | **tier 1** | Build synapse edge lists from eCREST reconstruction files (uses `AnalysisCode.load_ecrest_celldata`; no live eCREST viewer) | `data_processed_published/df_postsyn.csv`, `df_presyn.csv` | Input to `Analyses_published` |
-| `eCREST_notebook.ipynb` | **tier 2** | Documents the eCREST reconstruction and annotation workflow (live Neuroglancer viewer) | — | Methods |
-| `morphology_cat_createDF.ipynb` | **tier 3** (Mac/Linux) | Extract morphological node statistics from eCREST files via CloudVolume skeletons | `data_processed_published/morphology_cat/*.csv` | Input to `CellTyping` |
-| `json_to_VASTskel.ipynb` | **tier 3** (Mac/Linux) | Convert eCREST `.json` files to VAST-compatible skeleton format | VAST skeleton CSV files (under `Notebooks_Jupyter/outputs/vast_skeletons/`) | Input to VAST agglomeration pipeline |
-| `Subvolume_dense-set.ipynb` | **tier 3** (Mac/Linux) | Assign cell-type labels to segments in the precomputed EM subvolume | `data_VAST/volume_subsample_sg-mg-out_ratio/df_segments_assigned.csv` | Extended Data Fig. 4 |
-| `SpineCounts.ipynb` | **tier 3** (Mac/Linux) | Spine count and apical dendrite length from EM subvolume (needs a local `igneous view` server; see Environment Setup) | `data_processed_published/df_spine_counts.csv` | Extended Data Fig. 4 |
-| `Blender_make_mesh.ipynb` | **tiers 2 + 3** (Mac/Linux) | Generate 3D mesh renderings (.obj) of reconstructed neurons | `.obj` files (under `Notebooks_Jupyter/outputs/blender_obj/`) | Fig 1 panels |
+| `CellTyping.ipynb` | **tier 1** | Morphological classification of cell types (MG1/MG2, SG1/SG2); soma descriptive stats | `data_processed_published/df_type_auto_typed.csv` | Extended Data Fig. 2; input to `Analyses_published` |
+| `Network-Build.ipynb` | **tier 1** | Build synapse edge lists from eCREST reconstruction files (uses `AnalysisCode.load_ecrest_celldata()`; no live eCREST neuroglancer viewer required) | `data_processed_published/df_postsyn.csv`, `df_presyn.csv` | Input to `Analyses_published` |
+| `eCREST_notebook.ipynb` | **tier 2** | Provides the basic eCREST reconstruction and annotation workflow | neuroglancer viewer with eCREST reconstruction instance | Methods |
+| `json_to_VASTskel.ipynb` | **tier 2** (Mac/Linux) | Convert eCREST `.json` files to VAST-compatible skeleton format | VAST skeleton CSV files (under `Notebooks_Jupyter/outputs/vast_skeletons/`) | Input to VAST agglomeration pipeline |
+| `morphology_cat_createDF.ipynb` | **tier 3** (Mac/Linux) | Extract morphological node statistics for reconstructed cells via precomputed skeletons (requires CloudVolume) | `data_processed_published/morphology_cat/*.csv` | Input to `CellTyping` |
+| `Subvolume_dense-set.ipynb` | **tier 3** (Mac/Linux) | Assign cell-type labels to segments in the precomputed EM subvolume | `data_VAST/volume_subsample_sg-mg-out_ratio/df_segments_assigned.csv` | Extended Data Fig. 3 |
+| `SpineCounts.ipynb` | **tier 3** (Mac/Linux) | Spine count and apical dendrite length from EM subvolume (needs a local `igneous view` server; see Environment Setup) | `data_processed_published/df_spine_counts.csv` | Extended Data Fig. 3 |
+| `Blender_make_mesh.ipynb` | **tier 3** (Mac/Linux) | Generate 3D mesh renderings (.obj) of reconstructed neurons | `.obj` files (under `Notebooks_Jupyter/outputs/blender_obj/`) | Fig 1 panels |
 
 ---
 
@@ -327,7 +327,6 @@ Convergence:
       • reconstructions_published/*.json
       • annotation-spines/
       • layer-molecular_annotation.json
-      • published_reconstructions.json       (curated cell list; input filter)
       • fig5/*.mat, fig6/*.mat               (external modeling repo, DOI TBD)
     outputs:
       • Published figure panels (.svg)
@@ -336,10 +335,10 @@ Convergence:
 ### Provenance notes
 
 - **`layer-molecular_annotation.json`** — a Neuroglancer state file containing manually placed layer-boundary annotations made in Neuroglancer's annotation tab. Consumed by `morphology_cat_createDF`, `CellTyping`, and `Analyses_published`.
-- **`actual_coords_isotropic.mat`** — generated by the MATLAB helpers `analyze_segs.m` and `segment_centers.m` in `data_VAST/matlab-helper-scripts/`. They export segment centers from a segmentation layer built manually over the isotropic segmentation mask.
+- **`actual_coords_isotropic.mat`** — generated by the MATLAB helpers `analyze_segs.m` and `segment_center.m` in `data_VAST/matlab-helper-scripts/`. They export segment centers from a segmentation layer built manually over the isotropic segmentation mask.
 - **`iso_thumbnails_mSEM/`** — a downsampled/averaged version of the original mSEM volume, used for rapid visual soma detection during subvolume definition.
 - **`fig5/*.mat`, `fig6/*.mat`** — network-modeling outputs produced by code external to this repository (*DOI: TBD*).
-- **`published_reconstructions.json`** — a curated list of cell IDs that filter reconstructions to the published set. Consumed by `Analyses_published` as an input; not produced by any notebook in this pipeline. *[Origin to be documented — hand-curated?]*
+- **`STATIC_published-reconstructions.json`** — a base-segment → reconstructed-cell dictionary used to build the user-friendly static single-segment version of each reconstruction (each cell available as a single agglomerated segment in the public GCS bucket). It is a convenience lookup for archive consumers; no notebook in this pipeline reads it.
 - **`df_type_auto_typed.csv`** — written by `CellTyping.ipynb`. Serves as a cell-subset filter consumed by `morphology_cat_createDF`, `Subvolume_dense-set`, `SpineCounts`, `json_to_VASTskel`, and `Analyses_published`. The `morphology_cat_createDF` ↔ `CellTyping` loop is iterative: the first pass uses a preliminary manual typing; later passes consume the automated output.
 - **`precomputed_subvolume-apical-revision/`** — ships directly in `EM_data_published/`. It was originally built via a VAST + CloudVolume + Igneous chain, documented below for provenance only. Users do **not** rebuild it.
 - **VAST** — see the [VAST / VASTlite](#vast--vastlite) entry in External Tools and Background.
@@ -383,7 +382,7 @@ efish_em_ELL/
 │   ├── json_to_VASTskel.ipynb
 │   ├── Blender_make_mesh.ipynb
 │   └── eCREST_notebook.ipynb
-└── efish_em/                      ← Python package (importable as `AnalysisCode as efish`)
+└── efish_em/                      ← Python package (importable as `from efish_em import AnalysisCode`)
     ├── __init__.py
     ├── AnalysisCode.py
     └── eCREST_cli.py
@@ -393,8 +392,8 @@ efish_em_ELL/
 
 ## Troubleshooting
 
-**`ModuleNotFoundError: No module named 'AnalysisCode'`**
-You launched Jupyter from the wrong directory. Make sure to `cd efish_em_ELL/Notebooks_Jupyter` before running `jupyter lab`.
+**`ModuleNotFoundError: No module named 'efish_em'`**
+The `efish_em_ELL` package is not installed in the active environment. From the repo root, run `pip install -e .` (or the tier-2/tier-3 variant — see [Installation](#installation)), then restart the Jupyter kernel.
 
 **`FileNotFoundError` for data files**
 Check that `EM_data_published/` is placed as a sibling to `efish_em_ELL/` (not inside it), and that the folder structure matches what is listed under [Expected contents of `EM_data_published/`](#expected-contents-of-em_data_published).
