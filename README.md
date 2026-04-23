@@ -60,6 +60,7 @@ EM_data_published/
 ├── base-segs_query_published.parquet      ← same table in Parquet format
 ├── STATIC_published-reconstructions.json  ← base-segment → reconstructed-cell dictionary used to build the user-friendly static single-segment versions of each reconstruction
 ├── Mariela_bigquery_exports_agglo_v230111c_16_crest_proofreading_database.db
+├── data_ell_net/                          ← Data for modeling scripts efish_em_ELL/ELL_net_model_paper/
 ├── fig5/
 ├── fig6/
 ├── figS4/
@@ -68,7 +69,7 @@ EM_data_published/
 ```
 
 **Modeling Data and Scripts**
-Modeling data were obtained via separately-hosted custom scripts written in Matlab (Muller: [DOI]). The processed data from the modeling simulations are included in EM_data_published for Figure reproduction purposes. The containing folder name matches the figure number in the final manuscript (`fig5/`, `fig6/`, `figS4/`, `figS7/`, `figS8/`). The `.mat` files within these folders carry the filenames used at the time of manuscript submission.
+Modeling data were obtained via custom scripts written in Matlab (S. Muller). Scripts are contained in the ELL_net_model_paper/ subfolder of this repository. The processed data from the modeling simulations are included in EM_data_published for Figure reproduction purposes. The containing folder name matches the figure number in the final manuscript (`fig5/`, `fig6/`, `figS4/`, `figS7/`, `figS8/`). The `.mat` files within these folders carry the filenames used at the time of manuscript submission.
 
 See `EM_data_published/EM_data_published_CONTENTS.md` in the archive for a full per-file description.
 
