@@ -54,22 +54,25 @@ EM_data_published/
 │   └── morphology_cat/
 ├── data_VAST/
 │   ├── iso_thumbnails_mSEM/               ← isotropic EM PNG stacks (used by Subvolume_dense-set.ipynb)
+│   ├── matlab-helper-scripts/             ← MATLAB helpers that produced actual_coords_isotropic.mat (provenance)
 │   └── volume_subsample_sg-mg-out_ratio/  ← subvolume CSVs + precomputed segmentation
-├── data_gc.mat
+├── ng_states/                             ← Neuroglancer state JSONs (template + 3 published views written by neuroglancer-demo-appspot.ipynb)
 ├── base-segs_query_published.csv          ← base-segment → voxel-location table (BigQuery export)
 ├── base-segs_query_published.parquet      ← same table in Parquet format
 ├── STATIC_published-reconstructions.json  ← base-segment → reconstructed-cell dictionary used to build the user-friendly static single-segment versions of each reconstruction
 ├── Mariela_bigquery_exports_agglo_v230111c_16_crest_proofreading_database.db
-├── data_ell_net/                          ← Data for modeling scripts efish_em_ELL/ELL_net_model_paper/
-├── fig5/
-├── fig6/
-├── figS4/
-├── figS7/
-└── figS8/
+└── model/                                 ← all modeling data (consumed by Analyses_published.ipynb and ELL_net_model_paper/)
+    ├── data_gc.mat
+    ├── data_ell_net/                      ← input data for ELL_net_model_paper/ MATLAB simulations
+    ├── fig5/
+    ├── fig6/
+    ├── figS4/
+    ├── figS7/
+    └── figS8/
 ```
 
 **Modeling Data and Scripts**
-Modeling data were obtained via custom scripts written in Matlab (S. Muller). Scripts are contained in the ELL_net_model_paper/ subfolder of this repository. The processed data from the modeling simulations are included in EM_data_published for Figure reproduction purposes. The containing folder name matches the figure number in the final manuscript (`fig5/`, `fig6/`, `figS4/`, `figS7/`, `figS8/`). The `.mat` files within these folders carry the filenames used at the time of manuscript submission.
+Modeling data were obtained via custom MATLAB scripts (S. Muller) in the `ELL_net_model_paper/` subfolder of this repository. The processed outputs of those simulations are shipped in `EM_data_published/model/` so that `Analyses_published.ipynb` can reproduce the modeling figure panels without re-running the simulations. Each subfolder name matches the figure number in the final manuscript (`model/fig5/`, `model/fig6/`, `model/figS4/`, `model/figS7/`, `model/figS8/`); `.mat` filenames within these folders carry the names used at the time of manuscript submission.
 
 See `EM_data_published/EM_data_published_CONTENTS.md` in the archive for a full per-file description.
 
@@ -158,7 +161,7 @@ The repository is installable via `pyproject.toml`. There are three install tier
 
 ### Install tier 1 — base (Windows / macOS / Linux)
 
-Runs the main analysis notebooks (`Analyses_published.ipynb`, `CellTyping.ipynb`) — sufficient to reproduce every published quantitative data panel (does not include mesh creation for Blender renderings).
+Runs the tier-1 analysis notebooks (`Analyses_published.ipynb`, `CellTyping.ipynb`, `Network-Build.ipynb`, `neuroglancer-demo-appspot.ipynb`) — sufficient to reproduce every published quantitative data panel from the shipped processed CSVs (does not include mesh creation for Blender renderings or live eCREST / CloudVolume operations).
 
 ```bash
 conda create --name efish_em python=3.11
@@ -254,29 +257,30 @@ If you launch Jupyter from any other directory, these paths will not resolve cor
 
 ## Notebook Guide
 
-The table below maps each notebook to its purpose, the install tier it requires, the files it produces, and the corresponding paper figures. Install tiers are defined above in [Environment Setup](#environment-setup): **tier 1** = base (`pip install -e .`), **tier 2** = `[ecrest]`, **tier 3** = `[cloudvolume]` (macOS / Linux only).
+Each row below gives, for one notebook: **install tier**, **purpose**, **inputs read from `EM_data_published/`**, **outputs written**, and the **paper figure(s)** it feeds. Install tiers are defined above in [Environment Setup](#environment-setup): **tier 1** = base (`pip install -e .`), **tier 2** = `[ecrest]`, **tier 3** = `[cloudvolume]` (macOS / Linux only). Every notebook imports `from efish_em import AnalysisCode as efish`.
 
-| Notebook | Install tier | Purpose | Output | Paper Figure(s) |
-|---|---|---|---|---|
-| `Analyses_published.ipynb` | **tier 1** | Main analysis and figure generation — runs top-to-bottom to reproduce published connectome results/figures (refer to modeling code for reproducing modeling results) | Figures | Figs 1–6; Extended Data Figs 2-8 |
-| `CellTyping.ipynb` | **tier 1** | Morphological classification of cell types (MG1/MG2, SG1/SG2); soma descriptive stats | `data_processed_published/df_type_auto_typed.csv` | Extended Data Fig. 2; input to `Analyses_published` |
-| `Network-Build.ipynb` | **tier 1** | Build synapse edge lists from eCREST reconstruction files (uses `AnalysisCode.load_ecrest_celldata()`; no live eCREST neuroglancer viewer required) | `data_processed_published/df_postsyn.csv`, `df_presyn.csv` | Input to `Analyses_published` |
-| `eCREST_notebook.ipynb` | **tier 2** | Provides the basic eCREST reconstruction and annotation workflow | neuroglancer viewer with eCREST reconstruction instance | Methods |
-| `json_to_VASTskel.ipynb` | **tier 2** (Mac/Linux) | Convert eCREST `.json` files to VAST-compatible skeleton format | VAST skeleton CSV files (under `Notebooks_Jupyter/outputs/vast_skeletons/`) | Input to VAST agglomeration pipeline |
-| `morphology_cat_createDF.ipynb` | **tier 3** (Mac/Linux) | Extract morphological node statistics for reconstructed cells via precomputed skeletons (requires CloudVolume) | `data_processed_published/morphology_cat/*.csv` | Input to `CellTyping` |
-| `Subvolume_dense-set.ipynb` | **tier 3** (Mac/Linux) | Assign cell-type labels to segments in the precomputed EM subvolume | `data_VAST/volume_subsample_sg-mg-out_ratio/df_segments_assigned.csv` | Extended Data Fig. 3 |
-| `SpineCounts.ipynb` | **tier 3** (Mac/Linux) | Spine count and apical dendrite length from EM subvolume (needs a local `igneous view` server; see Environment Setup) | `data_processed_published/df_spine_counts.csv` | Extended Data Fig. 3 |
-| `Blender_make_mesh.ipynb` | **tier 3** (Mac/Linux) | Generate 3D mesh renderings (.obj) of reconstructed neurons | `.obj` files (under `Notebooks_Jupyter/outputs/blender_obj/`) | Fig 1 panels |
+| Notebook | Tier | Purpose | Inputs from `EM_data_published/` | Outputs | Paper figure(s) |
+|---|---|---|---|---|---|
+| `Analyses_published.ipynb` | **1** | Main analysis & figure generation — runs top-to-bottom to reproduce every published connectome panel. Also loads modeling outputs to reproduce modeling panels. | `data_processed_published/{df_type_auto_typed, df_postsyn, df_presyn, df_spine_counts, MG_partial-cat}.csv`, `morphology_cat/*.csv`, `layer-molecular_annotation.json`, `data_VAST/volume_subsample_sg-mg-out_ratio/df_segments_assigned.csv`, `model/*.mat` (data_gc + figure folders) | Figure panels (SVG/PNG) under `Notebooks_Jupyter/figures/` when `save_figures=True` | Figs 1–6; ED Figs 2–8 |
+| `CellTyping.ipynb` | **1** | Hierarchical classification of cell types (MG1/MG2, SG1/SG2 and others) from morphology metrics; soma descriptive stats. | `morphology_cat/*.csv`, `MG_partial-cat.csv`, `layer-molecular_annotation.json`, `reconstructions_published/*.json` | `data_processed_published/df_type_auto_typed.csv` | ED Fig 2; cell-subset filter for every downstream notebook |
+| `Network-Build.ipynb` | **1** | Extract synapse annotations from eCREST `.json` files and assemble post-/pre-synaptic edge lists. No live Neuroglancer viewer required. | `reconstructions_published/*.json` | `data_processed_published/df_postsyn.csv`, `df_presyn.csv` | Input to `Analyses_published` |
+| `neuroglancer-demo-appspot.ipynb` | **1** | Build the three published Neuroglancer state JSONs (shown on the website Gallery) from the classified cell list and synapse edge list. | `reconstructions_published/*.json`, `data_processed_published/df_type_auto_typed.csv`, `df_postsyn.csv`; optional template inspection of `ng_states/em-prrofread-base-agglo.json` | `ng_states/Proofread_MG_Output_MGsyn.json`, `Proofread_Classified_Cells.json`, `Proofread_Unclassified.json` | Website Gallery (not a figure) |
+| `eCREST_notebook.ipynb` | **2** | Interactive template for opening/editing/typing a single reconstruction in the live eCREST + Neuroglancer viewer; documents the reconstruction workflow. | `reconstructions_published/*.json`, `Mariela_bigquery_exports_agglo_v230111c_16_crest_proofreading_database.db` | None by default (save is demonstrated but commented out) | Methods |
+| `json_to_VASTskel.ipynb` | **2** (Mac/Linux) | Convert eCREST `.json` reconstructions into VAST-compatible skeleton CSVs. Consumes the shipped base-segment → voxel location table (no live BigQuery needed). | `reconstructions_published/*.json`, `base-segs_query_published.parquet`, `data_processed_published/df_type_auto_typed.csv` | Timestamped CSVs under `Notebooks_Jupyter/outputs/vast_skeletons/` (optional `subvolume_apical/` subset) | Input to VAST agglomeration pipeline |
+| `morphology_cat_createDF.ipynb` | **3** (Mac/Linux) | Extract per-cell morphology statistics (nodes on axon / basal / apical trees) from precomputed CloudVolume skeletons. | `reconstructions_published/*.json`, `base-segs_query_published.parquet`, `data_processed_published/{df_type_auto_typed, layer-molecular_annotation}`, CloudVolume `gs://efish-public/roi450um_seg32fb16fb_220930/` | `data_processed_published/morphology_cat/*.csv` (df_nodes_ax/bd/ad × type1/type2) | Input to `CellTyping` |
+| `Subvolume_dense-set.ipynb` | **3** (Mac/Linux) | Map each segment in the dense-labeled VAST subvolume to a reconstructed-cell ID/type; validate coordinate alignment. | `data_VAST/volume_subsample_sg-mg-out_ratio/actual_coords_isotropic.mat`, `data_VAST/iso_thumbnails_mSEM/16nm_EM_png_stack_5x5/`, `data_processed_published/df_type_auto_typed.csv`, CloudVolume `gs://efish-public/roi450um_seg32fb16fb_220930/` | `data_VAST/volume_subsample_sg-mg-out_ratio/df_segments_assigned.csv` | ED Fig 3 |
+| `SpineCounts.ipynb` | **3** (Mac/Linux) | Count spines per depth bin along the apical dendrite, using the shipped precomputed subvolume served by `igneous view` (see Environment Setup). | `reconstructions_published/annotation-spines/*.json`, `data_VAST/volume_subsample_sg-mg-out_ratio/df_segments_assigned.csv`, `df_type_auto_typed.csv`, local `CloudVolume('precomputed://http://localhost:8001')` | `data_processed_published/df_spine_counts.csv` | ED Fig 3 |
+| `Blender_make_mesh.ipynb` | **3** (Mac/Linux) | Download and downsample 3D meshes (`.obj`) of reconstructed neurons from the precomputed segmentation for Blender rendering. | `reconstructions_published/*.json`, CloudVolume `gs://efish-public/roi450um_seg32fb16fb_220930/` | `.obj` files under `Notebooks_Jupyter/outputs/blender_obj/` | Fig 1 mesh panels; supplemental videos |
 
 ---
 
 ## Full Pipeline Workflow
 
-The notebooks form four parallel workflows that converge on `Analyses_published.ipynb`. The diagram below traces the processing order from raw EM data to final published figures.
+The notebooks form five parallel workflows. Four converge on `Analyses_published.ipynb`; the fifth (`neuroglancer-demo-appspot.ipynb`) publishes the interactive Neuroglancer views shown on the release website Gallery. The diagram below traces the processing order from raw EM data to final published figures.
 
 ```
 Raw mSEM EM volume
-  └─▶ gs://fish-ell/  (Precomputed base segmentation)
+  └─▶ gs://efish-public/roi450um_seg32fb16fb_220930/  (Precomputed base segmentation)
         │
         └─▶ eCREST_cli.py  (via eCREST_notebook.ipynb)
               └─▶ reconstructions_published/*.json
@@ -289,7 +293,7 @@ Raw mSEM EM volume
                     │    → morphology_cat_createDF.ipynb
                     │      inputs: base-segs_query_published.parquet,
                     │              layer-molecular_annotation.json,
-                    │              gs://fish-ell/,
+                    │              gs://efish-public/roi450um_seg32fb16fb_220930/,
                     │              df_type_auto_typed.csv  (iterative filter)
                     │         → morphology_cat/*.csv
                     │             → CellTyping.ipynb
@@ -302,7 +306,7 @@ Raw mSEM EM volume
                     │
                     ├─── Pipeline 3 (subvolume → spine counts) ──────────────
                     │    → Subvolume_dense-set.ipynb
-                    │      inputs: gs://fish-ell/, df_type_auto_typed.csv,
+                    │      inputs: gs://efish-public/roi450um_seg32fb16fb_220930/, df_type_auto_typed.csv,
                     │              actual_coords_isotropic.mat,
                     │              iso_thumbnails_mSEM/*.png
                     │         → df_segments_assigned.csv
@@ -314,23 +318,35 @@ Raw mSEM EM volume
                     │                 df_type_auto_typed.csv
                     │           → df_spine_counts.csv  ──▶ Analyses_published
                     │
-                    └─── Pipeline 4 (3D rendering) ──────────────────────────
-                         → Blender_make_mesh.ipynb  (uses gs://fish-ell/ by seg ID)
-                             → .obj files  ──▶  Blender (external)
-                                                 3D figure panels
+                    ├─── Pipeline 4 (3D rendering) ──────────────────────────
+                    │    → Blender_make_mesh.ipynb  (uses gs://efish-public/roi450um_seg32fb16fb_220930/ by seg ID)
+                    │        → .obj files  ──▶  Blender (external)
+                    │                            3D figure panels
+                    │
+                    └─── Pipeline 5 (Neuroglancer state publishing) ─────────
+                         → neuroglancer-demo-appspot.ipynb
+                           inputs: reconstructions_published/*.json,
+                                   df_type_auto_typed.csv, df_postsyn.csv
+                             → ng_states/Proofread_MG_Output_MGsyn.json
+                             → ng_states/Proofread_Classified_Cells.json
+                             → ng_states/Proofread_Unclassified.json
+                                   ──▶ efish EM release website Gallery
 
 Convergence:
   Analyses_published.ipynb
     inputs:
-      • df_postsyn.csv, df_presyn.csv        (Pipeline 1)
-      • df_type_auto_typed.csv               (Pipeline 2)
-      • df_spine_counts.csv                  (Pipeline 3)
+      • df_postsyn.csv, df_presyn.csv              (Pipeline 1)
+      • df_type_auto_typed.csv, morphology_cat/    (Pipeline 2)
+      • df_segments_assigned.csv, df_spine_counts  (Pipeline 3)
       • reconstructions_published/*.json
       • annotation-spines/
       • layer-molecular_annotation.json
-      • fig5/*.mat, fig6/*.mat               (external modeling repo, DOI TBD)
+      • MG_partial-cat.csv
+      • model/data_gc.mat, model/fig5/*.mat, model/fig6/*.mat,
+        model/figS4/*.mat, model/figS7/*.mat, model/figS8/*.mat
+                                                   (produced by ELL_net_model_paper/ MATLAB code)
     outputs:
-      • Published figure panels (.svg)
+      • Published figure panels (.svg / .png) in Notebooks_Jupyter/figures/
 ```
 
 ### Provenance notes
@@ -338,7 +354,8 @@ Convergence:
 - **`layer-molecular_annotation.json`** — a Neuroglancer state file containing manually placed layer-boundary annotations made in Neuroglancer's annotation tab. Consumed by `morphology_cat_createDF`, `CellTyping`, and `Analyses_published`.
 - **`actual_coords_isotropic.mat`** — generated by the MATLAB helpers `analyze_segs.m` and `segment_center.m` in `data_VAST/matlab-helper-scripts/`. They export segment centers from a segmentation layer built manually over the isotropic segmentation mask.
 - **`iso_thumbnails_mSEM/`** — a downsampled/averaged version of the original mSEM volume, used for rapid visual soma detection during subvolume definition.
-- **`fig5/*.mat`, `fig6/*.mat`** — network-modeling outputs produced by code external to this repository (*DOI: TBD*).
+- **`model/*.mat`** (under `model/data_gc.mat`, `model/fig5/`, `model/fig6/`, `model/figS4/`, `model/figS7/`, `model/figS8/`) — network-modeling outputs produced by the MATLAB code in `ELL_net_model_paper/` (this repository). The `.mat` files are shipped so that `Analyses_published.ipynb` can reproduce modeling panels without re-running the simulations. `model/data_ell_net/` holds the input data consumed by those MATLAB scripts.
+- **`ng_states/em-prrofread-base-agglo.json`** — a hand-authored Neuroglancer state used as the base layer reference (inspected by `neuroglancer-demo-appspot.ipynb`). The three output JSONs in `ng_states/` are written by that notebook and power the Gallery links on the release website.
 - **`STATIC_published-reconstructions.json`** — a base-segment → reconstructed-cell dictionary used to build the user-friendly static single-segment version of each reconstruction (each cell available as a single agglomerated segment in the public GCS bucket). It is a convenience lookup for archive consumers; no notebook in this pipeline reads it.
 - **`df_type_auto_typed.csv`** — written by `CellTyping.ipynb`. Serves as a cell-subset filter consumed by `morphology_cat_createDF`, `Subvolume_dense-set`, `SpineCounts`, `json_to_VASTskel`, and `Analyses_published`. The `morphology_cat_createDF` ↔ `CellTyping` loop is iterative: the first pass uses a preliminary manual typing; later passes consume the automated output.
 - **`precomputed_subvolume-apical-revision/`** — ships directly in `EM_data_published/`. It was originally built via a VAST + CloudVolume + Igneous chain, documented below for provenance only. Users do **not** rebuild it.
@@ -369,20 +386,23 @@ base-segs_query_published.parquet
 ```
 efish_em_ELL/
 ├── README.md
-├── LICENSE
+├── pyproject.toml                 ← install tiers (base, [ecrest], [cloudvolume], [all])
+├── requirements.txt               ← provenance-only pin list (not an install target)
 ├── .gitignore
-├── requirements.txt
 ├── efish_em.mplstyle              ← matplotlib style for publication figures
+├── ELL_net_model_paper/           ← MATLAB scripts that produce model/*.mat in EM_data_published
 ├── Notebooks_Jupyter/             ← launch jupyter lab from here
 │   ├── Analyses_published.ipynb
-│   ├── SpineCounts.ipynb
-│   ├── Subvolume_dense-set.ipynb
-│   ├── Network-Build.ipynb
 │   ├── CellTyping.ipynb
-│   ├── morphology_cat_createDF.ipynb
+│   ├── Network-Build.ipynb
+│   ├── neuroglancer-demo-appspot.ipynb
+│   ├── eCREST_notebook.ipynb
 │   ├── json_to_VASTskel.ipynb
+│   ├── morphology_cat_createDF.ipynb
+│   ├── Subvolume_dense-set.ipynb
+│   ├── SpineCounts.ipynb
 │   ├── Blender_make_mesh.ipynb
-│   └── eCREST_notebook.ipynb
+│   └── figures/                   ← output folder written by Analyses_published.ipynb
 └── efish_em/                      ← Python package (importable as `from efish_em import AnalysisCode`)
     ├── __init__.py
     ├── AnalysisCode.py
