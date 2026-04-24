@@ -123,9 +123,9 @@ The precomputed segmentation volume used for apical dendrite spine and length an
 2. **Export to `.raw` binary** — via VASTlite's export function.
 3. **Process `.raw` → HDF5 numpy array** — stack assembly and conversion into an HDF5 volume dataset.
 4. **CloudVolume HDF5 → Precomputed format** — via `cloudvolume` ingestion tools.
-5. **Igneous command-line pipeline** — `igneous mesh forge`, `igneous mesh merge`, and `igneous skeleton` steps to produce meshes and skeletons served from the precomputed directory.
+5. **Igneous command-line pipeline** — `igneous mesh forge`, `igneous mesh merge`, `igneous skeleton forge` and `igneous skeleton merge` steps to produce meshes and skeletons to be served and queried from the precomputed directory.
 
-To use the shipped precomputed volume, serve it locally with Igneous:
+To use the shipped precomputed volume, serve it locally with Igneous (port number for https serving can be specified per user choice, or the Igneous default can be used if no `--port` flag is passed):
 
 ```bash
 cd EM_data_published/data_VAST/volume_subsample_sg-mg-out_ratio/
@@ -276,8 +276,8 @@ Each row below gives, for one notebook: **install tier**, **purpose**, **inputs 
 
 ## Full Pipeline Workflow
 
-The notebooks form five parallel workflows. Four converge on `Analyses_published.ipynb`; the fifth (`neuroglancer-demo-appspot.ipynb`) publishes the interactive Neuroglancer views shown on the release website Gallery. The diagram below traces the processing order from raw EM data to final published figures.
-
+The diagram below traces the processing order from raw EM data to final published figures.
+The data processing and analysis can be replicated by utilizing the notebooks in Notebooks_Jupyter/ and these notebooks enable roughly 5 main parallel workflows. Four converge on `Analyses_published.ipynb`; the fifth (`neuroglancer-demo-appspot.ipynb`) publishes the interactive Neuroglancer views shown on the release website [Gallery](https://efish-public.storage.googleapis.com/gallery.html). 
 ```
 Raw mSEM EM volume
   └─▶ gs://efish-public/roi450um_seg32fb16fb_220930/  (Precomputed base segmentation)
@@ -287,6 +287,7 @@ Raw mSEM EM volume
                     │
                     ├─── Pipeline 1 ─────────────────────────────────────────
                     │    → Network-Build.ipynb
+                    |      inputs: reconstructions_published/*.json
                     │         → df_postsyn.csv, df_presyn.csv  ──▶ Analyses_published
                     │
                     ├─── Pipeline 2 (cell-typing loop) ──────────────────────
@@ -310,13 +311,16 @@ Raw mSEM EM volume
                     │              actual_coords_isotropic.mat,
                     │              iso_thumbnails_mSEM/*.png
                     │         → df_segments_assigned.csv
+                    |               ─▶ SpineCounts.ipynb
                     │
                     │    precomputed_subvolume-apical-revision/  (SHIPPED)
                     │      └─ served via `igneous view` ─▶ SpineCounts.ipynb
-                    │         inputs: annotation-spines/,
-                    │                 df_segments_assigned.csv,
-                    │                 df_type_auto_typed.csv
-                    │           → df_spine_counts.csv  ──▶ Analyses_published
+                    |
+                    |    → SpineCounts.ipynb
+                    │      inputs: annotation-spines/,
+                    │              df_segments_assigned.csv,
+                    │              df_type_auto_typed.csv
+                    │        → df_spine_counts.csv  ──▶ Analyses_published
                     │
                     ├─── Pipeline 4 (3D rendering) ──────────────────────────
                     │    → Blender_make_mesh.ipynb  (uses gs://efish-public/roi450um_seg32fb16fb_220930/ by seg ID)
@@ -347,6 +351,7 @@ Convergence:
                                                    (produced by ELL_net_model_paper/ MATLAB code)
     outputs:
       • Published figure panels (.svg / .png) in Notebooks_Jupyter/figures/
+      • Quantitative summary statistics reported in manuscript text
 ```
 
 ### Provenance notes
