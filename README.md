@@ -6,7 +6,7 @@ Code repository accompanying:
 
 This repository contains Jupyter notebooks and Python utilities for processing and analyzing data from the electrosensory lobe (ELL) connectome of *Gnathonemus petersii* (African pulse-type electric fish).
 
-**License:** MIT (code). The companion data archive `EM_data_published/` is released under CC-BY-4.0.
+**License:** MIT (code). The companion data archive `EM_data_published/` is released under Creative Commons Attribution 4.0 International.
 
 ---
 
