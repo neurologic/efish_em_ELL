@@ -4,7 +4,9 @@ Code repository accompanying:
 
 **Perks, Petkova, Muller et al. (2025). "Connectome analysis of a recurrent multi-layer network for continual learning in electric fish."**
 
-This repository contains Jupyter notebooks and Python utilities for processing and analyzing data from the electrosensory lobe (ELL) connectome of *Gnathonemus petersii* (African pulse-type electric fish).
+This repository contains Jupyter notebooks and Python utilities for processing and analyzing the connectomic dataset of the electrosensory lobe (ELL) of an African pulse-type electric fish as well as Matlab scripts for creating and simulating models of the ELL circuit.
+
+The connectomic dataset is available for visualization from [the project landing page](https://efish-public.storage.googleapis.com/index.html)
 
 **License:** MIT (code). The companion data archive `EM_data_published/` is released under Creative Commons Attribution 4.0 International.
 
