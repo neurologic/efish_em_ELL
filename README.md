@@ -105,6 +105,12 @@ In this project, VAST was used to combine and manually correct automated segment
 
 This preparation step is a one-off producing the Fig 1D asset; it is not required to reproduce any analysis and is not shipped as a notebook.
 
+### Neuroglancer
+
+[Neuroglancer](https://github.com/google/neuroglancer) is a WebGL-based viewer for volumetric data. It is capable of displaying arbitrary (non axis-aligned) cross-sectional views of volumetric data, as well as 3-D meshes and line-segment based models (skeletons).
+
+In this project, Neuroglancer is utilized by eCREST/CREST for the proofreading workflow. Preset dataset states have been created for visualization via the linked Gallery.
+
 ### CloudVolume
 
 [cloud-volume](https://github.com/seung-lab/cloud-volume) (Seung Lab) is a Python library for reading and writing volumetric datasets stored in [Neuroglancer Precomputed](https://github.com/google/neuroglancer/blob/master/src/datasource/precomputed/README.md) format.
@@ -157,7 +163,7 @@ Re-running this pipeline requires the `google-cloud-bigquery` Python package and
 
 The repository is installable via `pyproject.toml`. There are three install tiers — pick the one that matches which notebooks you plan to run.
 
-> **About `requirements.txt`:** this file is a provenance record of the exact conda environment used on the author's Mac to produce the published figures. It is **not** an installation target (many pins are osx-64 specific). Use the `pip install` commands below instead.
+> **About `static_solve.txt`:** this file is a provenance record of the exact conda environment used on the author's Mac to produce the published figures. It is **not** an installation target (many pins are osx-64 specific). Use the `pip install` commands below instead.
 
 ### Install tier 1 — base (Windows / macOS / Linux)
 
@@ -392,7 +398,7 @@ base-segs_query_published.parquet
 efish_em_ELL/
 ├── README.md
 ├── pyproject.toml                 ← install tiers (base, [ecrest], [cloudvolume], [all])
-├── requirements.txt               ← provenance-only pin list (not an install target)
+├── static_solve.txt               ← provenance-only pin list of all tiers (not an install target)
 ├── .gitignore
 ├── efish_em.mplstyle              ← matplotlib style for publication figures
 ├── ELL_net_model_paper/           ← MATLAB scripts that produce model/*.mat in EM_data_published
