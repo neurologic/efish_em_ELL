@@ -8,7 +8,6 @@ This repository contains Jupyter notebooks and Python utilities for processing a
 
 The connectomic dataset is available for visualization from [the project landing page](https://efish-public.storage.googleapis.com/index.html)
 
-**License:** MIT (code). The companion data archive `EM_data_published/` is released under Creative Commons Attribution 4.0 International.
 
 ---
 
