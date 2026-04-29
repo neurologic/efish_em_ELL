@@ -25,9 +25,9 @@ This repository contains Jupyter notebooks and Python utilities for processing a
 
 ## Data Download
 
-The analysis data (`EM_data_published/`, ~12.5 GB) is hosted separately from this repository due to file size constraints.
+The analysis data (`EM_data_published/`) is hosted separately from this repository due to file size constraints.
 
-**Download from:** `[DATA_REPOSITORY_URL]`  *(placeholder — DOI will be added upon publication)*
+**Download from:** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19892261.svg)](https://doi.org/10.5281/zenodo.19892261)
 
 After downloading and extracting, place the `EM_data_published/` folder **as a sibling** to this cloned repository, so your directory structure looks like:
 
